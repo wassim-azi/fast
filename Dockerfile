@@ -8,16 +8,21 @@ RUN apk update && \
     py3-pip \
     ghostscript \
     curl \
-    bash && \
-    python3 -m ensurepip && \
-    pip3 install --upgrade pip
+    bash
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
+# Create and activate a virtual environment
+RUN python3 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Upgrade pip inside the virtual environment
+RUN pip install --upgrade pip
+
+# Copy the requirements file and install dependencies inside the virtual environment
 COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy application files
 COPY main.py .
