@@ -18,7 +18,7 @@ async def merge_pdf_files(
     files: List[UploadFile] = File(...),
     compress: str = Form(default="none"),
     quality: str = Form(default="ebook"),
-    password: Optional[str] = Form(default=None),
+    password: Optional[str] = Form(default=None, description="Leave empty for no password"),
 ) -> FileResponse:
     """
     Merge multiple PDF files into a single PDF with optional compression and password protection.
@@ -36,6 +36,9 @@ async def merge_pdf_files(
     valid_quality = {"ebook", "printer", "prepress"}
     if compress == "ghostscript" and quality not in valid_quality:
         raise HTTPException(status_code=400, detail=f"Invalid quality for Ghostscript. Allowed values: {list(valid_quality)}")
+
+    # Ensure password is properly set (Swagger UI sends "string" if left empty)
+    password = password if password and password != "string" else None
 
     # Create one temporary directory and set up subdirectories for input and output
     temp_dir = tempfile.TemporaryDirectory()
